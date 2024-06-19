@@ -872,7 +872,7 @@ class AudioPlayer {
       return duration;
     } on PlatformException catch (e) {
       try {
-        if (e.code == "-1004" && source is LockCachingAudioSource) {
+        if (e.code == "-1004") {
           try {
             await _proxy._server.close(force: true);
           } catch (_) {
