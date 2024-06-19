@@ -837,7 +837,7 @@ class AudioPlayer {
   }
 
   Future<Duration?> _load(AudioPlayerPlatform platform, AudioSource source,
-      {_InitialSeekValues? initialSeekValues}) async {
+      {_InitialSeekValues? initialSeekValues, bool restart = true}) async {
     final activationNumber = _activationCount;
     void checkInterruption() {
       if (_activationCount != activationNumber) {
@@ -878,10 +878,18 @@ class AudioPlayer {
           } catch (_) {
           }
           await _proxy.start();
+          if(restart) {
+            _load(platform, source, initialSeekValues: initialSeekValues, restart: false);
+          } else {
+            throw PlayerException(int.parse(e.code), e.message,
+                (e.details as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
+          }
+        } else {
+          throw PlayerException(int.parse(e.code), e.message,
+              (e.details as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
         }
-
-        throw PlayerException(int.parse(e.code), e.message,
-            (e.details as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
+        // throw PlayerException(int.parse(e.code), e.message,
+        //     (e.details as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
       } on FormatException catch (_) {
         if (e.code == 'abort') {
           throw PlayerInterruptedException(e.message);
